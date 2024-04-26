@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>Аудиокнига Архонт</title>
+    
+</head>
+<body onload="xep('stellar_5/', 'Стеллар 3 Архонт')">
+    <header>
+        <div class="hed_1" style="margin-top: 10px; margin-bottom: 10px;">
+            <img src="img/иконка_2.png" height="50px">
+            <div style="width: 100%; display: flex; align-items: center; justify-content: end;"><div class="voiti">Войти</div></div>
+        </div>
+        <div class="hed_2_box">
+            <input type="text" class="hed_2_1" placeholder="Поиск аудиокниг по названию">
+            <img src="img/поиск.png" class="hed_2_2">
+        </div>
+        <div style="height: 10px;"></div>
+    </header>
+    <div class="name_1">
+        <h1 class="name_2">Архонт</h1>
+    </div>
+    <img class="image" src="img/stellar_5.jpg">
+    <div class="info">
+        <div class="info_3" style="margin-top: 10px;">
+            <a class="info_2" href="#">Жанр: Фэнтези,</a>
+            <a class="info_2" href="#">ЛитРПГ,</a>
+            <a class="info_2" href="#">Постапокалипсис.</a>
+        </div>
+        <div class="info_3">
+            <a class="info_2" href="#">Автор: Роман Прокофьев.</a>
+        </div>
+        <div class="info_3">
+            <a class="info_2" href="#">Читает: Олег Кейнз,</a>
+            <a class="info_2" href="#">Ксения Небесная.</a>
+        </div>
+        <div class="info_3">
+            <a class="info_2" href="#">Длительность: 10:51:22</a>
+        </div>
+        <div class="info_3">
+            <a class="info_2" href="#">Цикл "Стеллар" 5/9</a>
+        </div>
+        <div style="height: 10px;"></div>
+    </div>
+    <div class="player">
+        <div class="buttons">
+            <img src="img/предыдущий.png" alt="" class="play" onclick="pred()">
+            <img id="pl" src="img/плей.png" class="play" onclick="clicker()">
+            <img src="img/следующий.png" alt="" class="play" onclick="sled()">
+        </div>
+        <div class="line">
+            <div id="l" class="bar" style="width: 0%;"></div>
+        </div>
+        <div>
+            <p id="p" style="font-size: 20px; font-weight:600; color: rgb(111, 111, 111);"></p>
+        </div>
+        <div class="pleylist" id="pleylist">
+        </div>
+        <div style="height: 25px;"></div>
+    </div>
+    <div class="annotation">
+        <div class="an_3">
+            <h1 class="an_1">
+                Стеллар 5, Архонт Аннотация:
+            </h1>
+        </div>
+        <div class="an_3", style="margin-top: -35px;">
+            <p class="an_2">
+                Внимание, директива действительного гранд-легата Стеллара! <br>
+                Найти Звездный Выстрел. Уничтожить Даат. Возродить Первый Легион. <br>
+                По выполнению - любыми средствами ликвидировать Тревогу "Черная Луна". <br><br>
+
+                Совет архонтов низвергнут. Приказ Прометея получен. Но Город грозит захлестнуть новая буря, и Грэй отправляется в Нео-Арк, чтобы лицом к лицу встретиться со старым врагом. Или другом? Ведь никто не знает наверняка, кем были и откуда пришли первые Инкарнаторы...
+            </p>
+        </div>
+        
+    </div>
+    <footer>
+        <div class="fd">
+            <img src="img/прав.png" height="40px">
+            <a href="#" class="f">Право-обладателям</a>
+        </div>
+        <div class="fd">
+            <img src="img/Telegram.png" height="40px">
+            <a href="#" class="f">Наш Телеграмм канал</a>
+        </div>
+        <div class="fd">
+            <img src="img/обр_св.png" height="40px">
+            <a href="#" class="f">Обратная связь</a>
+        </div>
+        <div class="fd">
+            <img src="img/иконка.png" height="40px">
+            <a href="#" class="f">AudioRUS</a>
+        </div>
+        
+        
+        
+        
+    </footer>
+    <script src="main.js"></script>
+</body>
+</html>

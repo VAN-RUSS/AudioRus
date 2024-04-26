@@ -1,0 +1,550 @@
+@media screen {
+    html {
+        width: 100%;
+    }
+    .voiti {
+        background-color: rgb(255, 255, 255);
+        width: 100px;
+        height: 50px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border: 2px solid black;
+        border-radius: 40px;
+        cursor: pointer;
+    }
+    .hide {
+        width: 0px;
+    }
+    .player {
+        width: 100%;
+        background-color: rgb(50, 50, 50);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        border-radius: 20px;
+        margin-top: 5px;
+    }
+    .buttons {
+        display: flex;
+        justify-content: space-around;
+        width: 100%;
+        height: 150px;
+    }
+    .play {
+        margin-top: 20px;
+        height: 80px;
+        color: rgb(60, 60, 60);
+    }
+    .line {
+        width: 80%;
+        height: 10px;
+        background-color: rgb(111, 111, 111);
+    }
+    .bar {
+        height: 100%;
+        background-color: rgb(29, 29, 29);
+    }
+    .pleylist {
+        width: 90%;
+        display: flex;
+        flex-direction: column;
+        align-items: start;
+        border: 2px solid black;
+        border-radius: 4px;
+        max-height: 250px;
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+    .pleylist_2 {
+        font-size: 20px;
+        font-weight: 550;
+        text-decoration: none;
+        color: rgb(135, 135, 135);
+        font-family: Arial, Helvetica, sans-serif;
+        margin-left: 5px;
+        -webkit-touch-callout: none;
+        -webkit-user-select: none;
+        -khtml-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+    }
+    .pleylist_3 {
+        display: flex;
+        align-items: center;
+        border: 2px solid black;
+        width: 100%;
+        height: 30px;
+        cursor: pointer;
+    }
+    .image {
+        max-width: 800px;
+        width: 98%;
+        border: 3px solid black;
+        border-radius: 20px;
+    }
+    .name_1 {
+        width: 100%;
+        height: 100px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    .name_2 {
+        font-size: 60px;
+        font-weight: 600;
+        font-family: Arial, Helvetica, sans-serif;
+    }
+    .info {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        background-color: rgb(225, 225, 225);
+        border-radius: 20px;
+    }
+    .info_2 {
+        font-size: 25px;
+        font-weight: 600;
+        text-decoration: none;
+        color: black;
+        font-family: Arial, Helvetica, sans-serif;
+        margin-left: 5px;
+    }
+    .info_3 {
+        margin-left: 2%;
+        margin-top: 10px;
+        background-color: rgb(200, 200, 200);
+        border-radius: 10px;
+        width: 96%;
+    
+    }
+    .annotation {
+        margin-top: 5px;
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        background-color: rgb(225, 225, 225);
+        border-radius: 20px;
+        width: 100%;
+    }
+    .an_1 {
+        font-size: 40px;
+        font-weight: 600;
+        color: black;
+        font-family: Arial, Helvetica, sans-serif;
+        width: 96%;
+        margin-left: 2%;
+    }
+    .an_2 {
+        font-size: 20px;
+        font-weight: 600;
+        color: black;
+        font-family: Arial, Helvetica, sans-serif;
+        margin-left: 2%;
+        width: 96%;
+    }
+    .an_3 {
+        margin-left: 2%;
+        margin-top: 10px;
+        margin-bottom: 10px;
+        background-color: rgb(200, 200, 200);
+        border-radius: 10px;
+        width: 96%;
+    }
+    header {
+        width: 100%;
+        background-color: rgb(245, 245, 245);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        border-radius: 20px;
+    }
+    .hed_2_1 {
+        width: 85%;
+        height: calc(1.25rem + 2px);
+        padding: 0.375rem 0.75rem;
+        font-family: inherit;
+        font-size: 1rem;
+        font-weight: 400;
+        line-height: 1.5;
+        color: #212529;
+        background-color: #fff;
+        background-clip: padding-box;
+        border: 1px solid #ffffff;
+        border-radius: 0.25rem;
+        height: 24px;
+    }
+    .hed_2_1:focus {
+        color: #212529;
+        background-color: #fff;
+        border-color: #ffffff;
+        outline: 0;
+    }
+    .hed_2_2 {
+        height: 39.3px;
+    }
+    .hed_2_box {
+        width: 90%;
+        height: 60px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: #fff;
+        border: 1px solid #bdbdbd;
+        border-radius: 0.25rem;
+    }
+    .hed_1 {
+        width: 90%;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    footer {
+        width: 100%;
+        margin-top: 5px;
+        background-color: rgb(225, 225, 225);
+        border-radius: 20px;
+        display: flex;
+        flex-direction: column;
+    }
+    .f {
+        font-size: 30px;
+        font-weight: 600;
+        text-decoration: none;
+        color: black;
+        font-family: Arial, Helvetica, sans-serif;
+        margin-left: 5px;
+    }
+    .fd {
+        margin-left: 5%;
+        display: flex;
+        align-items: center;
+    }
+    .swiper {
+        width: 100%;
+        height: 200px;
+    }
+    .swiper-slide {
+        font-size: 18px;
+        background: #fff;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    .swiper-slide img {
+        height: 91%;
+        border-radius: 10px;
+    }
+    html {
+        overflow-x: hidden;
+        width: 100%;
+    }
+    a {
+        text-decoration: none;
+        color: black;
+    }
+}
+@media (min-width: 300px) and (max-width: 600px) {
+    h2 {
+        margin-top: 0;
+        margin-bottom: 0px;
+    }
+    .prosto_knigi {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+    }
+    .prosto_kniga {
+        background-color: rgb(220, 220, 220);
+        width: 100%;
+        margin-bottom: 10px;
+        border: 2px solid rgb(0, 0, 0);
+        border-radius: 5px;
+        min-height: 195px;
+        width: (100% - 20px);
+    }
+    a {
+        width: 95%;
+    }
+    .kniga_img {
+        height: 180px;
+        float: left;
+        margin: 5px;
+        margin-bottom: 0px;
+        border-radius: 5px;
+        border: 2px solid rgb(0, 0, 0);
+    }
+    .kniga_p {
+        margin: 5px;
+    }
+    .name_2 {
+        font-size: 40px;
+        font-weight: 600;
+        font-family: Arial, Helvetica, sans-serif;
+    }
+    .swiper {
+        width: 300%;
+        height: auto;
+    }
+    .slide {
+        width: 47%;
+        height: auto;
+        border-radius: 10px;
+        border: 3px solid rgb(0, 0, 0);
+    }
+    .hide {
+        width: 47%;
+        height: auto;
+        border-radius: 10px;
+        border: 3px solid rgb(0, 0, 0);
+    }
+    .hide2 {
+        width: 0px;
+        height: 0px;
+        border: 0px;
+    }
+}
+
+@media (min-width: 300px) and (max-width: 374px) {
+    h2 {
+        display: flex;
+        justify-content: center;
+    }
+    .kniga_p {
+        display: flex;
+        justify-content: center;
+    }
+    .prosto_kniga {
+        background-color: rgb(220, 220, 220);
+        width: 100%;
+        margin-bottom: 10px;
+        border: 2px solid rgb(0, 0, 0);
+        border-radius: 5px;
+        min-height: 195px;
+        width: (100% - 20px);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    .kniga_img {
+        width: 90%;
+        height: auto;
+        float: left;
+        margin: 5%;
+        margin-bottom: 0px;
+        border-radius: 5px;
+        border: 2px solid rgb(0, 0, 0);
+    }
+    .slide {
+        width: 98%;
+        height: auto;
+        border-radius: 10px;
+        border: 3px solid rgb(0, 0, 0);
+    }
+    .hide {
+        width: 0px;
+        height: 0px;
+        border: 0px;
+    }
+    .hide2 {
+        width: 0px;
+        height: 0px;
+        border: 0px;
+    }
+}
+@media (min-width: 600px) and (max-width: 1000px) {
+    body {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    .image {
+        max-width: 800px;
+        width: 78%;
+        border: 3px solid black;
+        border-radius: 20px;
+    }
+    .play {
+        margin-top: 20px;
+        height: 120px;
+        color: rgb(60, 60, 60);
+    }
+    .prosto_knigi {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+    }
+    .prosto_kniga {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-around;
+        background-color: rgb(220, 220, 220);
+        width: 100%;
+        border: 2px solid rgb(0, 0, 0);
+        border-radius: 5px;
+    }
+    a {
+        width: 90%;
+        margin: 10px;
+    }
+    .kniga_img {
+        height: 300px;
+        margin-right: 10px;
+        border: 2px solid rgb(0, 0, 0);
+        border-radius: 2px;
+    }
+    .swiper {
+        width: 100%;
+        height: auto;
+        display: flex;
+    }
+    .slide {
+        width: 31%;
+        height: auto;
+        border-radius: 10px;
+        border: 3px solid rgb(0, 0, 0);
+    }
+    .hide {
+        width: 31%;
+        height: auto;
+        border-radius: 10px;
+        border: 3px solid rgb(0, 0, 0);
+    }
+    .hide2 {
+        width: 31%;
+        height: auto;
+        border-radius: 10px;
+        border: 3px solid rgb(0, 0, 0);
+    }
+}
+@media (min-width: 1000px) and (max-width: 1600px) {
+    .voiti {
+        width: 200px;
+        height: 75px;
+        font-size: 40px;
+        font-weight: 380;
+    }
+    .image {
+        max-width: 800px;
+        width: 45%;
+        float: left;
+        margin-left: 2.5%;
+        margin-bottom: 20px;
+    }
+    .info {
+        width: 45%;
+        margin-left: 52.5%;
+        margin-bottom: 10px;
+    }
+    .player {
+        width: 45%;
+        margin-left: 52.5%;
+        margin-bottom: 20px;
+    }
+    .annotation {
+        width: 100%;
+    }
+    h2 {
+        font-size: 20px;
+    }
+    .ikon {
+        height: 75px;
+    }
+    .play {
+        margin-top: 20px;
+        height: 120px;
+        color: rgb(60, 60, 60);
+    }
+    .prosto_knigi {
+        width: 100%;
+    }
+    .prosto_kniga {
+        display: flex;
+        justify-content: space-around;
+        background-color: rgb(220, 220, 220);
+        width: 45%;
+        margin-bottom: 10px;
+        border: 2px solid rgb(0, 0, 0);
+        border-radius: 5px;
+        min-height: 300px;
+        width: (100% - 20px);
+        align-items: center;
+        float: left;
+        margin: 2.2%;
+    }
+    a {
+        width: 45%;
+    }
+    .kniga_img {
+        height: 300px;
+        margin-right: 10px;
+        border: 2px solid rgb(0, 0, 0);
+        border-radius: 2px;
+    }
+    .swiper {
+        width: 100%;
+        height: auto;
+        display: flex;
+    }
+    .slide {
+        width: 31%;
+        height: auto;
+        border-radius: 10px;
+        border: 3px solid rgb(0, 0, 0);
+    }
+    .hide {
+        width: 31%;
+        height: auto;
+        border-radius: 10px;
+        border: 3px solid rgb(0, 0, 0);
+    }
+    .hide2 {
+        width: 31%;
+        height: auto;
+        border-radius: 10px;
+        border: 3px solid rgb(0, 0, 0);
+    }
+}
+@media (min-width: 1250px) and (max-width: 1400px) {
+    .image {
+        max-width: 800px;
+        width: 45%;
+        float: left;
+        margin-left: 5%;
+        margin-bottom: 20px;
+    }
+    .info {
+        width: 40%;
+        margin-left: 55%;
+        margin-bottom: 10px;
+        margin-top: 5%;
+    }
+    .player {
+        width: 40%;
+        margin-left: 55%;
+        margin-bottom: 20px;
+    }
+}
+@media (min-width: 1400px) and (max-width: 1600px) {
+    .image {
+        max-width: 800px;
+        width: 45%;
+        float: left;
+        margin-left: 5%;
+        margin-bottom: 20px;
+    }
+    .info {
+        width: 40%;
+        margin-left: 55%;
+        margin-bottom: 10px;
+        margin-top: 10%;
+    }
+    .player {
+        width: 40%;
+        margin-left: 55%;
+        margin-bottom: 20px;
+    }
+}
