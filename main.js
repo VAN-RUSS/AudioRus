@@ -13,7 +13,7 @@ let pr = 0
 function tec2(a) {
     tec = a
 }
-function xep(Name_papka, Name_Russian) {
+function xep(Name_papka, Name_Russian, KolVo_files = 6) {
     myAudio = new Audio(Name_papka + '00.mp3');
     while (a < KolVo_files - 1){
         a += 1
@@ -22,7 +22,7 @@ function xep(Name_papka, Name_Russian) {
             c = '0' + a
         }
         pleylistF.push(Name_papka + c + '.mp3')
-        container = '<div class="pleylist_3" id="' + a + '" onclick="document.getElementById(tec).setAttribute(`style`, `background-color: rgb(70, 70, 70)`); tec2(' + a + '); myAudio.pause(); myAudio = new Audio(`' + pleylistF[a] + '`); document.getElementById(`pl`).setAttribute(`src`, `img/плей.png`); document.getElementById(`' + a + '`).setAttribute(`style`, `background-color: rgb(100, 100, 100)`);"><p class="pleylist_2">' + c + ' ' + Name_Russian + '</p></div>'
+        container = '<div class="pleylist_3" id="' + a + '" onclick="document.getElementById(tec).setAttribute(`style`, `background-color: rgb(70, 70, 70)`); tec2(' + a + '); myAudio.pause(); myAudio = new Audio(`' + pleylistF[a] + '`); myAudio.play(); document.getElementById(`pl`).setAttribute(`src`, `img/пауза.png`); document.getElementById(`' + a + '`).setAttribute(`style`, `background-color: rgb(100, 100, 100)`);"><p class="pleylist_2">' + c + ' ' + Name_Russian + '</p></div>'
         document.getElementById('pleylist').innerHTML += container
     }
 }
