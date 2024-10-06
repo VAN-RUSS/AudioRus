@@ -240,6 +240,10 @@
         overflow-x: hidden;
         width: 100%;
     }
+    .all {
+        overflow-x: hidden;
+        width: 100%;
+    }
     a {
         text-decoration: none;
         color: black;
@@ -420,7 +424,7 @@
         border: 3px solid rgb(0, 0, 0);
     }
 }
-@media (min-width: 1000px) and (max-width: 1600px) {
+@media (min-width: 1000px) {
     .voiti {
         width: 200px;
         height: 75px;
@@ -528,7 +532,7 @@
         margin-bottom: 20px;
     }
 }
-@media (min-width: 1400px) and (max-width: 1600px) {
+@media (min-width: 1400px) {
     .image {
         max-width: 800px;
         width: 45%;
@@ -546,5 +550,13 @@
         width: 40%;
         margin-left: 55%;
         margin-bottom: 20px;
+    }
+}
+@media (min-width: 1600px) {
+    .all {
+        overflow-x: hidden;
+        width: 1600px;
+        position: relative;
+        margin: 0 auto;
     }
 }
