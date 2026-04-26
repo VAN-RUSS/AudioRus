@@ -13,6 +13,50 @@ let pr = 0
 function tec2(a) {
     tec = a
 }
+// === КЭШ-СОХРАНЕНИЕ ПРОГРЕССА (добавить в конец main.js) ===
+
+const CACHE_KEY = 'audioProgress_' + window.location.pathname.split('/').pop().replace('.html', '');
+
+function saveProgress() {
+    if (!myAudio || !myAudio.duration) return;
+    localStorage.setItem(CACHE_KEY, JSON.stringify({
+        track: tec,
+        time: myAudio.currentTime,
+        timestamp: Date.now()
+    }));
+}
+
+function loadProgress() {
+    const saved = JSON.parse(localStorage.getItem(CACHE_KEY));
+    if (!saved) return false;
+    // проверим, не старше ли запись 30 дней
+    if (Date.now() - saved.timestamp > 30 * 24 * 3600 * 1000) {
+        localStorage.removeItem(CACHE_KEY);
+        return false;
+    }
+    return saved;
+}
+
+// модифицировать xep():
+// после генерации плейлиста:
+//   const saved = loadProgress();
+//   if (saved && saved.track < KolVo_files) {
+//       tec = saved.track;
+//       myAudio = new Audio(pleylistF[tec]);
+//       myAudio.currentTime = saved.time;
+//       // подсветить нужный трек в плейлисте
+//   }
+
+// модифицировать clicker():
+//   при паузе вызывать saveProgress()
+
+// добавить:
+window.addEventListener('beforeunload', saveProgress);
+
+// сохранять раз в 5 секунд во время воспроизведения
+setInterval(function() {
+    if (myAudio && !myAudio.paused) saveProgress();
+}, 5000);
 function xep(Name_papka, Name_Russian, KolVo_files = 6) {
     myAudio = new Audio(Name_papka + '00.mp3');
     while (a < KolVo_files - 1){
@@ -114,50 +158,8 @@ function clicker() {
         a.setAttribute('src', 'img/пауза.png')
         myAudio.play()
     }}
-// === КЭШ-СОХРАНЕНИЕ ПРОГРЕССА (добавить в конец main.js) ===
 
-const CACHE_KEY = 'audioProgress_' + window.location.pathname.split('/').pop().replace('.html', '');
-
-function saveProgress() {
-    if (!myAudio || !myAudio.duration) return;
-    localStorage.setItem(CACHE_KEY, JSON.stringify({
-        track: tec,
-        time: myAudio.currentTime,
-        timestamp: Date.now()
-    }));
 }
 
-function loadProgress() {
-    const saved = JSON.parse(localStorage.getItem(CACHE_KEY));
-    if (!saved) return false;
-    // проверим, не старше ли запись 30 дней
-    if (Date.now() - saved.timestamp > 30 * 24 * 3600 * 1000) {
-        localStorage.removeItem(CACHE_KEY);
-        return false;
-    }
-    return saved;
-}
-
-// модифицировать xep():
-// после генерации плейлиста:
-//   const saved = loadProgress();
-//   if (saved && saved.track < KolVo_files) {
-//       tec = saved.track;
-//       myAudio = new Audio(pleylistF[tec]);
-//       myAudio.currentTime = saved.time;
-//       // подсветить нужный трек в плейлисте
-//   }
-
-// модифицировать clicker():
-//   при паузе вызывать saveProgress()
-
-// добавить:
-window.addEventListener('beforeunload', saveProgress);
-
-// сохранять раз в 5 секунд во время воспроизведения
-setInterval(function() {
-    if (myAudio && !myAudio.paused) saveProgress();
-}, 5000);
-}
 
 
