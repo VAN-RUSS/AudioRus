@@ -37,6 +37,12 @@ function xep(Name_papka, Name_Russian, KolVo_files = 6) {
 
     // Пытаемся восстановить прогресс после генерации плейлиста
     restoreProgress()
+    const restored = restoreProgress()
+if (!restored) {
+    tec = 0
+    myAudio = new Audio(pleylistF[0])
+    document.getElementById('0').setAttribute('style', 'background-color: rgb(100, 100, 100)')
+}
 }
 
 // ==================== ПРОГРЕСС-БАР (МЫШЬ + TOUCH) ====================
@@ -175,6 +181,10 @@ function clicker() {
 // ==================== КЭШ-СОХРАНЕНИЕ ПРОГРЕССА ====================
 // Формируем уникальный ключ на основе URL страницы (без .html)
 function getCacheKey() {
+    const params = new URLSearchParams(window.location.search)
+    const bookId = params.get('book')
+    if (bookId) return 'audioProgress_' + bookId
+    // fallback для главной и старых страниц
     const path = window.location.pathname.split('/').pop().replace('.html', '')
     return 'audioProgress_' + path
 }

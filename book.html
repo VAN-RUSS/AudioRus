@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>Аудиокнига</title>
+    <link rel="icon" href="img/иконка.png" type="image/png">
+</head>
+<body>
+    <div class="all">
+        <a href="index.html">
+            <header>
+                <div class="hed_1" style="margin-top: 10px; margin-bottom: 10px;">
+                    <img class="ikon" src="img/иконка_2.png" height="50px" alt="AudioRUS">
+                    <div style="width: 100%; display: flex; align-items: center; justify-content: end;">
+                        <div class="voiti" onclick="alert('Вход в разработке')">Войти</div>
+                    </div>
+                </div>
+                <div class="hed_2_box">
+                    <input type="text" class="hed_2_1" placeholder="Поиск аудиокниг по названию">
+                    <img src="img/поиск.png" class="hed_2_2" alt="Поиск">
+                </div>
+                <div style="height: 10px;"></div>
+            </header>
+        </a>
+
+        <div class="name_1">
+            <h1 class="name_2" id="book-title">Загрузка...</h1>
+        </div>
+
+        <img class="image" id="book-cover" src="" alt="Обложка книги" loading="lazy">
+
+        <div class="info" id="book-info">
+            <!-- Заполняется через book-loader.js -->
+            <div style="height: 100px; display: flex; align-items: center; justify-content: center;">
+                <p style="font-family: Arial; font-size: 20px; color: #888;">Загрузка информации о книге...</p>
+            </div>
+        </div>
+
+        <div class="player">
+            <div class="buttons">
+                <img src="img/предыдущий.png" alt="Предыдущий трек" class="play" onclick="pred()">
+                <img id="pl" src="img/плей.png" class="play" onclick="clicker()" alt="Плей/Пауза">
+                <img src="img/следующий.png" alt="Следующий трек" class="play" onclick="sled()">
+            </div>
+            <div class="line">
+                <div id="l" class="bar" style="width: 0%;"></div>
+            </div>
+            <div>
+                <p id="p" style="font-size: 20px; font-weight:600; color: rgb(111, 111, 111);">0:00/0:00</p>
+            </div>
+            <div class="pleylist" id="pleylist">
+                <!-- Заполняется через main.js: xep() -->
+            </div>
+            <div style="height: 25px;"></div>
+        </div>
+
+        <!-- Навигация между книгами вставится через book-loader.js -->
+        
+        <div class="annotation" id="book-annotation">
+            <!-- Заполняется через book-loader.js -->
+        </div>
+
+        <footer>
+            <div class="fd">
+                <img src="img/прав.png" height="40px" alt="Правообладателям">
+                <a href="#" class="f">Право-обладателям</a>
+            </div>
+            <div class="fd">
+                <img src="img/Telegram.png" height="40px" alt="Telegram">
+                <a href="https://t.me/Audio_RUS_chanel" class="f">Наш Телеграмм канал</a>
+            </div>
+            <div class="fd">
+                <img src="img/обр_св.png" height="40px" alt="Обратная связь">
+                <a href="#" class="f">Обратная связь</a>
+            </div>
+            <div class="fd">
+                <img src="img/иконка.png" height="40px" alt="AudioRUS">
+                <a href="index.html" class="f">AudioRUS</a>
+            </div>
+        </footer>
+    </div>
+
+    <script src="books-data.js"></script>
+    <script src="main.js"></script>
+    <script src="book-loader.js"></script>
+</body>
+</html>
