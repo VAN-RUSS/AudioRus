@@ -24,6 +24,14 @@ function xep(Name_papka, Name_Russian, KolVo_files = 6) {
         pleylistF.push(Name_papka + c + '.mp3')
         container = '<div class="pleylist_3" id="' + a + '" onclick="document.getElementById(tec).setAttribute(`style`, `background-color: rgb(70, 70, 70)`); tec2(' + a + '); myAudio.pause(); myAudio = new Audio(`' + pleylistF[a] + '`); myAudio.play(); document.getElementById(`pl`).setAttribute(`src`, `img/пауза.png`); document.getElementById(`' + a + '`).setAttribute(`style`, `background-color: rgb(100, 100, 100)`);"><p class="pleylist_2">' + c + ' ' + Name_Russian + '</p></div>'
         document.getElementById('pleylist').innerHTML += container
+        const saved = loadProgress();
+        if (saved && saved.track < KolVo_files) {
+         tec = saved.track;
+         myAudio = new Audio(pleylistF[tec]);
+         myAudio.currentTime = saved.time;
+         document.getElementById(tec).setAttribute(`style`, `background-color: rgb(70, 70, 70)`);
+         document.getElementById(tec + 1).setAttribute(`style`, `background-color: rgb(100, 100, 100)`);
+        }
     }
 }
 
@@ -99,6 +107,7 @@ function clicker() {
     if (a.getAttribute('src') == 'img/пауза.png') {
         a.setAttribute('src', 'img/плей.png')
         myAudio.pause()
+        saveProgress()
     }
     else {
         if (a.getAttribute('src') == "img/плей.png") {
@@ -150,4 +159,5 @@ setInterval(function() {
     if (myAudio && !myAudio.paused) saveProgress();
 }, 5000);
 }
+
 
