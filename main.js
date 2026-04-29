@@ -11,10 +11,35 @@ let pr = 0
 let progressInterval = null
 let saveInterval = null
 let isRestoring = false
+let audioBlobUrls = [] // Храним Blob URL для аудио
 
 // ==================== УТИЛИТЫ ====================
 function tec2(a) {
     tec = a
+}
+
+// Функция для создания проксированного аудио
+function createProxiedAudio(url) {
+    // Возвращаем Promise с Audio элементом
+    return fetch(url, {
+        method: 'GET',
+        headers: {
+            'Referer': 'https://disk.yandex.ru/',
+            'Origin': 'https://disk.yandex.ru'
+        }
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+        }
+        return response.blob();
+    })
+    .then(blob => {
+        const blobUrl = URL.createObjectURL(blob);
+        audioBlobUrls.push(blobUrl); // Сохраняем для очистки
+        const audio = new Audio(blobUrl);
+        return audio;
+    });
 }
 
 // Генерация плейлиста
@@ -22,6 +47,10 @@ function xep(Name_papka, Name_Russian, KolVo_files, diskKey) {
     a = -1;
     pleylistF = [];
     document.getElementById('pleylist').innerHTML = '';
+
+    // Очищаем старые Blob URL
+    audioBlobUrls.forEach(url => URL.revokeObjectURL(url));
+    audioBlobUrls = [];
 
     const isYandexDisk = diskKey && diskKey.length > 0;
 
@@ -34,6 +63,9 @@ function xep(Name_papka, Name_Russian, KolVo_files, diskKey) {
 
         const apiUrl = `https://cloud-api.yandex.net/v1/disk/public/resources?public_key=${encodeURIComponent(publicKey)}&limit=1000`;
 
+        // Показываем индикатор загрузки
+        document.getElementById('pleylist').innerHTML = '<div style="padding: 20px; text-align: center; color: var(--player-text);">Загрузка плейлиста...</div>';
+
         fetch(apiUrl)
             .then(response => response.json())
             .then(data => {
@@ -44,41 +76,33 @@ function xep(Name_papka, Name_Russian, KolVo_files, diskKey) {
                         .sort((a, b) => a.name.localeCompare(b.name));
 
                     if (mp3Files.length === 0) {
-                        console.error('MP3 файлы не найдены');
                         document.getElementById('pleylist').innerHTML = '<div style="padding: 20px; text-align: center; color: var(--player-text);">MP3 файлы не найдены</div>';
                         return;
                     }
 
-                    // Создаем плейлист с прямыми ссылками (SW их проксирует)
-                    mp3Files.forEach((fileMetadata, index) => {
-                        // Используем прямые ссылки без прокси — Service Worker обработает
-                        pleylistF.push(fileMetadata.file);
+                    document.getElementById('pleylist').innerHTML = '';
 
+                    // Сохраняем прямые ссылки
+                    pleylistF = mp3Files.map(file => file.file);
+
+                    // Создаем HTML плейлиста
+                    mp3Files.forEach((fileMetadata, index) => {
                         let displayName = fileMetadata.name.replace('.mp3', '');
                         if (displayName.includes('?')) {
                             displayName = displayName.split('?')[0];
                         }
 
-                        container = '<div class="pleylist_3" id="' + index + '" onclick="document.getElementById(tec).setAttribute(`style`, `background-color: rgb(70, 70, 70)`); tec2(' + index + '); myAudio.pause(); myAudio = new Audio(`' + pleylistF[index] + '`); myAudio.play(); document.getElementById(`pl`).setAttribute(`src`, `img/пауза.png`); document.getElementById(`' + index + '`).setAttribute(`style`, `background-color: rgb(100, 100, 100)`); saveProgress(); update();"><p class="pleylist_2">' + displayName + ' ' + Name_Russian + '</p></div>';
+                        container = '<div class="pleylist_3" id="' + index + '" onclick="playTrack(' + index + ')"><p class="pleylist_2">' + displayName + ' ' + Name_Russian + '</p></div>';
                         document.getElementById('pleylist').innerHTML += container;
                     });
 
-                    // Запускаем плеер
-                    const restored = restoreProgress();
-                    if (!restored) {
-                        tec = 0;
-                        myAudio = new Audio(pleylistF[0]);
-                        document.getElementById('0').setAttribute('style', 'background-color: rgb(100, 100, 100)');
-                    }
-                    update();
-                } else {
-                    console.error('Неверный формат ответа от API');
-                    document.getElementById('pleylist').innerHTML = '<div style="padding: 20px; text-align: center; color: var(--player-text);">Ошибка загрузки плейлиста</div>';
+                    // Начинаем загрузку первого трека
+                    loadAndPlayTrack(0, true);
                 }
             })
             .catch(error => {
                 console.error('Ошибка при запросе к API Яндекс.Диска:', error);
-                document.getElementById('pleylist').innerHTML = '<div style="padding: 20px; text-align: center; color: var(--player-text);">Не удалось загрузить плейлист. Проверьте интернет.</div>';
+                document.getElementById('pleylist').innerHTML = '<div style="padding: 20px; text-align: center; color: var(--player-text);">Ошибка загрузки плейлиста</div>';
             });
 
     } else {
@@ -92,10 +116,11 @@ function xep(Name_papka, Name_Russian, KolVo_files, diskKey) {
                 c = '0' + a;
             }
             pleylistF.push(basePath + c + '.mp3');
-            container = '<div class="pleylist_3" id="' + a + '" onclick="document.getElementById(tec).setAttribute(`style`, `background-color: rgb(70, 70, 70)`); tec2(' + a + '); myAudio.pause(); myAudio = new Audio(`' + pleylistF[a] + '`); myAudio.play(); document.getElementById(`pl`).setAttribute(`src`, `img/пауза.png`); document.getElementById(`' + a + '`).setAttribute(`style`, `background-color: rgb(100, 100, 100)`); saveProgress(); update();"><p class="pleylist_2">' + c + ' ' + Name_Russian + '</p></div>';
+            container = '<div class="pleylist_3" id="' + a + '" onclick="playTrack(' + a + ')"><p class="pleylist_2">' + c + ' ' + Name_Russian + '</p></div>';
             document.getElementById('pleylist').innerHTML += container;
         }
 
+        // Для локальных файлов — обычное аудио
         const restored = restoreProgress();
         if (!restored) {
             tec = 0;
@@ -103,6 +128,79 @@ function xep(Name_papka, Name_Russian, KolVo_files, diskKey) {
             document.getElementById('0').setAttribute('style', 'background-color: rgb(100, 100, 100)');
         }
         update();
+    }
+}
+
+// Новая функция для загрузки и воспроизведения трека
+function loadAndPlayTrack(trackIndex, isInitial) {
+    const url = pleylistF[trackIndex];
+
+    // Подсвечиваем трек
+    for (let i = 0; i < pleylistF.length; i++) {
+        const el = document.getElementById(i);
+        if (el) el.setAttribute('style', 'background-color: rgb(70, 70, 70)');
+    }
+    document.getElementById(trackIndex).setAttribute('style', 'background-color: rgb(100, 100, 100)');
+
+    document.getElementById('pleylist').style.opacity = '0.5';
+
+    createProxiedAudio(url)
+        .then(audio => {
+            myAudio = audio;
+            tec = trackIndex;
+
+            document.getElementById('pl').setAttribute('src', 'img/пауза.png');
+            document.getElementById('pleylist').style.opacity = '1';
+
+            // Восстанавливаем прогресс если это начальная загрузка
+            if (isInitial) {
+                const restored = restoreProgress();
+                if (!restored) {
+                    myAudio.play();
+                }
+            } else {
+                myAudio.play();
+            }
+
+            update();
+            saveProgress();
+        })
+        .catch(error => {
+            console.error('Ошибка загрузки аудио:', error);
+            document.getElementById('pleylist').style.opacity = '1';
+            alert('Не удалось загрузить аудиофайл. Попробуйте позже.');
+        });
+}
+
+// Функция для воспроизведения трека при клике
+function playTrack(index) {
+    if (myAudio) {
+        myAudio.pause();
+        // Очищаем старый Blob URL если это был Яндекс.Диск
+        if (myAudio.src.startsWith('blob:')) {
+            URL.revokeObjectURL(myAudio.src);
+        }
+    }
+
+    document.getElementById('pl').setAttribute('src', 'img/пауза.png');
+
+    // Если это Яндекс.Диск — проксируем
+    if (pleylistF[index].includes('disk.yandex')) {
+        loadAndPlayTrack(index, false);
+    } else {
+        // Локальные файлы
+        myAudio = new Audio(pleylistF[index]);
+        tec = index;
+
+        for (let i = 0; i < pleylistF.length; i++) {
+            const el = document.getElementById(i);
+            if (el) el.setAttribute('style', 'background-color: rgb(70, 70, 70)');
+        }
+        document.getElementById(index).setAttribute('style', 'background-color: rgb(100, 100, 100)');
+
+        myAudio.play();
+        update();
+        saveProgress();
     }
 }
 
@@ -153,27 +251,13 @@ document.getElementsByClassName('line')[0].ontouchstart = function(event) {
 function pred() {
     if (tec <= 0) return
     myAudio.pause()
-    myAudio = new Audio(pleylistF[tec - 1])
-    document.getElementById(tec - 1).setAttribute(`style`, `background-color: rgb(100, 100, 100)`)
-    document.getElementById(tec).setAttribute(`style`, `background-color: rgb(70, 70, 70)`)
-    document.getElementById(`pl`).setAttribute(`src`, `img/пауза.png`)
-    myAudio.play()
-    tec -= 1
-    saveProgress()
-    update()
+    playTrack(tec - 1)
 }
 
 function sled() {
     if (tec >= pleylistF.length - 1) return
     myAudio.pause()
-    myAudio = new Audio(pleylistF[tec + 1])
-    document.getElementById(tec).setAttribute(`style`, `background-color: rgb(70, 70, 70)`)
-    document.getElementById(tec + 1).setAttribute(`style`, `background-color: rgb(100, 100, 100)`)
-    document.getElementById(`pl`).setAttribute(`src`, `img/пауза.png`)
-    myAudio.play()
-    tec += 1
-    saveProgress()
-    update()
+    playTrack(tec + 1)
 }
 
 // ==================== ОБНОВЛЕНИЕ ТАЙМЕРА И ПОЛОСЫ ====================
@@ -207,14 +291,7 @@ function update() {
 
         if (myAudio.ended && pleylistF.length > 0 && tec < pleylistF.length - 1) {
             myAudio.pause()
-            document.getElementById(tec).setAttribute(`style`, `background-color: rgb(70, 70, 70)`)
-            tec += 1
-            myAudio = new Audio(pleylistF[tec])
-            document.getElementById(tec).setAttribute(`style`, `background-color: rgb(100, 100, 100)`)
-            document.getElementById(`pl`).setAttribute(`src`, `img/пауза.png`)
-            myAudio.play()
-            saveProgress()
-            update()
+            playTrack(tec + 1)
         }
     }, 100)
 }
@@ -299,39 +376,49 @@ function restoreProgress() {
         activeEl.setAttribute('style', 'background-color: rgb(100, 100, 100)')
     }
 
-    myAudio = new Audio(pleylistF[tec])
-    myAudio.currentTime = saved.time
-
     document.getElementById('pl').setAttribute('src', 'img/плей.png')
 
-    myAudio.addEventListener('loadedmetadata', function() {
-        if (saved.time < myAudio.duration) {
-            myAudio.currentTime = saved.time
-        }
-        isRestoring = false
-    }, { once: true })
+    // Для Яндекс.Диска нужно пересоздать аудио с прокси
+    if (pleylistF[tec].includes('disk.yandex')) {
+        createProxiedAudio(pleylistF[tec])
+            .then(audio => {
+                myAudio = audio;
+                myAudio.currentTime = saved.time;
 
-    if (myAudio.readyState >= 1) {
-        if (saved.time < myAudio.duration) {
-            myAudio.currentTime = saved.time
+                myAudio.addEventListener('loadedmetadata', function() {
+                    if (saved.time < myAudio.duration) {
+                        myAudio.currentTime = saved.time;
+                    }
+                    isRestoring = false;
+                }, { once: true });
+
+                if (myAudio.readyState >= 1) {
+                    if (saved.time < myAudio.duration) {
+                        myAudio.currentTime = saved.time;
+                    }
+                    isRestoring = false;
+                }
+            });
+    } else {
+        myAudio = new Audio(pleylistF[tec])
+        myAudio.currentTime = saved.time
+
+        myAudio.addEventListener('loadedmetadata', function() {
+            if (saved.time < myAudio.duration) {
+                myAudio.currentTime = saved.time
+            }
+            isRestoring = false
+        }, { once: true })
+
+        if (myAudio.readyState >= 1) {
+            if (saved.time < myAudio.duration) {
+                myAudio.currentTime = saved.time
+            }
+            isRestoring = false
         }
-        isRestoring = false
     }
 
     return true
-}
-
-// ==================== РЕГИСТРАЦИЯ SERVICE WORKER ====================
-if ('serviceWorker' in navigator) {
-    window.addEventListener('load', function() {
-        navigator.serviceWorker.register('/Sorokin_Ivan_the_end_project/sw.js')
-            .then(function(registration) {
-                console.log('Service Worker зарегистрирован:', registration.scope);
-            })
-            .catch(function(error) {
-                console.log('Ошибка регистрации Service Worker:', error);
-            });
-    });
 }
 
 // ==================== АВТОСОХРАНЕНИЕ И ЗАКРЫТИЕ ====================
@@ -345,6 +432,8 @@ window.addEventListener('beforeunload', function() {
     saveProgress()
     if (progressInterval) clearInterval(progressInterval)
     if (saveInterval) clearInterval(saveInterval)
+    // Очищаем Blob URL при уходе
+    audioBlobUrls.forEach(url => URL.revokeObjectURL(url));
 })
 
 document.addEventListener('visibilitychange', function() {
