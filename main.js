@@ -18,7 +18,6 @@ function tec2(a) {
 }
 
 // Генерация плейлиста
-// main.js (фрагмент)
 function xep(Name_papka, Name_Russian, KolVo_files, diskKey) {
     a = -1;
     pleylistF = [];
@@ -48,7 +47,7 @@ function xep(Name_papka, Name_Russian, KolVo_files, diskKey) {
 
                         // Генерируем HTML для трека в плейлисте
                         let displayName = fileMetadata.name.replace('.mp3', '');
-                        container = '<div class="pleylist_3" id="' + index + '" onclick="document.getElementById(tec).setAttribute(`style`, `background-color: rgb(70, 70, 70)`); tec2(' + index + '); myAudio.pause(); myAudio = new Audio(`' + pleylistF[index] + '`); myAudio.play(); document.getElementById(`pl`).setAttribute(`src`, `img/пауза.png`); document.getElementById(`' + index + '`).setAttribute(`style`, `background-color: rgb(100, 100, 100)`); saveProgress();"><p class="pleylist_2">' + displayName + ' ' + Name_Russian + '</p></div>';
+                        container = '<div class="pleylist_3" id="' + index + '" onclick="document.getElementById(tec).setAttribute(`style`, `background-color: rgb(70, 70, 70)`); tec2(' + index + '); myAudio.pause(); myAudio = new Audio(`' + pleylistF[index] + '`); myAudio.play(); document.getElementById(`pl`).setAttribute(`src`, `img/пауза.png`); document.getElementById(`' + index + '`).setAttribute(`style`, `background-color: rgb(100, 100, 100)`); saveProgress(); update();"><p class="pleylist_2">' + displayName + ' ' + Name_Russian + '</p></div>';
                         document.getElementById('pleylist').innerHTML += container;
                     });
 
@@ -59,6 +58,7 @@ function xep(Name_papka, Name_Russian, KolVo_files, diskKey) {
                         myAudio = new Audio(pleylistF[0]);
                         document.getElementById('0').setAttribute('style', 'background-color: rgb(100, 100, 100)');
                     }
+                    update();
                 } else {
                     console.error('Не удалось получить список файлов с Яндекс.Диска');
                 }
@@ -78,7 +78,7 @@ function xep(Name_papka, Name_Russian, KolVo_files, diskKey) {
                 c = '0' + a;
             }
             pleylistF.push(basePath + c + '.mp3');
-            container = '<div class="pleylist_3" id="' + a + '" onclick="... твой текущий onclick ..."><p class="pleylist_2">' + c + ' ' + Name_Russian + '</p></div>';
+            container = '<div class="pleylist_3" id="' + a + '" onclick="document.getElementById(tec).setAttribute(`style`, `background-color: rgb(70, 70, 70)`); tec2(' + a + '); myAudio.pause(); myAudio = new Audio(`' + pleylistF[a] + '`); myAudio.play(); document.getElementById(`pl`).setAttribute(`src`, `img/пауза.png`); document.getElementById(`' + a + '`).setAttribute(`style`, `background-color: rgb(100, 100, 100)`); saveProgress(); update();"><p class="pleylist_2">' + c + ' ' + Name_Russian + '</p></div>';
             document.getElementById('pleylist').innerHTML += container;
         }
 
@@ -88,6 +88,7 @@ function xep(Name_papka, Name_Russian, KolVo_files, diskKey) {
             myAudio = new Audio(pleylistF[0]);
             document.getElementById('0').setAttribute('style', 'background-color: rgb(100, 100, 100)');
         }
+        update();
     }
 }
 
@@ -149,6 +150,7 @@ function pred() {
     myAudio.play()
     tec -= 1
     saveProgress()
+    update()
 }
 
 function sled() {
@@ -161,6 +163,7 @@ function sled() {
     myAudio.play()
     tec += 1
     saveProgress()
+    update()
 }
 
 // ==================== ОБНОВЛЕНИЕ ТАЙМЕРА И ПОЛОСЫ ====================
@@ -196,20 +199,19 @@ function update() {
         document.getElementById('l').style.width = progressPercent + '%'
 
         // Автопереход на следующий трек
-        if (myAudio.duration === myAudio.currentTime && pleylistF.length > 0 && tec < pleylistF.length - 1) {
+        if (myAudio.ended && pleylistF.length > 0 && tec < pleylistF.length - 1) {
             myAudio.pause()
-            myAudio = new Audio(pleylistF[tec + 1])
             document.getElementById(tec).setAttribute(`style`, `background-color: rgb(70, 70, 70)`)
-            document.getElementById(tec + 1).setAttribute(`style`, `background-color: rgb(100, 100, 100)`)
+            tec += 1
+            myAudio = new Audio(pleylistF[tec])
+            document.getElementById(tec).setAttribute(`style`, `background-color: rgb(100, 100, 100)`)
             document.getElementById(`pl`).setAttribute(`src`, `img/пауза.png`)
             myAudio.play()
-            tec += 1
             saveProgress()
+            update()
         }
     }, 100)
 }
-
-update()
 
 // ==================== ПЛЕЙ / ПАУЗА ====================
 function clicker() {
@@ -239,7 +241,7 @@ const CACHE_KEY = getCacheKey()
 const CACHE_EXPIRY_DAYS = 30
 
 function saveProgress() {
-    if (!myAudio || !myAudio.duration || isNaN(myAudio.duration)) return
+    if (!myAudio || !myAudio.duration || isNaN(myAudio.duration) || myAudio.duration === 0) return
     if (isRestoring) return  // не сохраняем во время восстановления
 
     const data = {
@@ -277,8 +279,8 @@ function loadProgress() {
 
 function restoreProgress() {
     const saved = loadProgress()
-    if (!saved) return
-    if (saved.track < 0 || saved.track >= pleylistF.length) return
+    if (!saved) return false
+    if (saved.track < 0 || saved.track >= pleylistF.length) return false
 
     isRestoring = true
 
@@ -318,33 +320,9 @@ function restoreProgress() {
         }
         isRestoring = false
     }
-}
 
-// ==================== ПЕРЕКЛЮЧЕНИЕ ТЕМЫ ====================
-function toggleTheme() {
-    const html = document.documentElement
-    const current = html.getAttribute('data-theme')
-    const next = current === 'dark' ? 'light' : 'dark'
-    html.setAttribute('data-theme', next)
-    localStorage.setItem('theme', next)
-    updateThemeIcon(next)
+    return true
 }
-
-function updateThemeIcon(theme) {
-    const btn = document.querySelector('.theme-toggle')
-    if (btn) {
-        btn.textContent = theme === 'dark' ? '☀️' : '🌙'
-    }
-}
-
-// Восстановление темы при загрузке
-(function() {
-    const saved = localStorage.getItem('theme') || 'light'
-    document.documentElement.setAttribute('data-theme', saved)
-    document.addEventListener('DOMContentLoaded', function() {
-        updateThemeIcon(saved)
-    })
-})()
 
 // ==================== АВТОСОХРАНЕНИЕ И ЗАКРЫТИЕ ====================
 // Сохраняем прогресс каждые 5 секунд во время воспроизведения
