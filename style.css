@@ -429,14 +429,14 @@ header {
 }
 
 .prosto_kniga > div {
-    padding: 18px 16px 18px 0;
+    padding: 18px 16px 18px 16px;  /* Áûכמ: padding: 18px 16px 18px 0; */
     flex: 1;
     overflow: hidden;
     display: flex;
     flex-direction: column;
     justify-content: center;
     gap: 10px;
-}
+    }
 
 .prosto_kniga h2 {
     margin: 0;
@@ -592,19 +592,25 @@ footer {
         gap: 20px;
     }
 
+
     .prosto_kniga {
         height: 230px;
     }
 
     .kniga_img {
         width: 120px;
-
     }
 
     .prosto_kniga > div {
-        padding: 14px 12px 14px 0;
-        gap: 8px;
+    padding: 18px 16px 18px 16px;  /* Áûכמ: padding: 18px 16px 18px 0; */
+    flex: 1;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 10px;
     }
+
 
     .prosto_kniga h2 {
         font-size: 17px;
@@ -613,7 +619,6 @@ footer {
     .kniga_p {
         font-size: 13px;
         -webkit-line-clamp: 4;
-        margin left: 50px;
     }
 
     .buttons .play {
