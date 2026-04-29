@@ -123,6 +123,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const annotation = document.getElementById('book-annotation')
     annotation.parentNode.insertBefore(navContainer, annotation)
 
-    // Запускаем плеер
-    xep(book.folder, book.nameRussian, book.filesCount)
+    // book-loader.js (фрагмент)
+// Запускаем плеер
+xep(book.folder, book.nameRussian, book.filesCount, book.diskKey || null);
 })

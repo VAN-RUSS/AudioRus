@@ -18,31 +18,77 @@ function tec2(a) {
 }
 
 // Генерация плейлиста
-function xep(Name_papka, Name_Russian, KolVo_files = 6) {
-    // Сбрасываем счётчик треков
-    a = -1
-    pleylistF = []
-    document.getElementById('pleylist').innerHTML = ''
+// main.js (фрагмент)
+function xep(Name_papka, Name_Russian, KolVo_files, diskKey) {
+    a = -1;
+    pleylistF = [];
+    document.getElementById('pleylist').innerHTML = '';
 
-    while (a < KolVo_files - 1) {
-        a += 1
-        c = a
-        if (a < 10) {
-            c = '0' + a
+    // Проверяем, работаем ли мы с Яндекс.Диском
+    const isYandexDisk = diskKey && diskKey.length > 0;
+
+    if (isYandexDisk) {
+        // --- Режим Яндекс.Диска ---
+        // Загружаем информацию о файлах через API
+        const apiUrl = `https://cloud-api.yandex.net/v1/disk/public/resources?public_key=${diskKey}&limit=1000`;
+
+        fetch(apiUrl)
+            .then(response => response.json())
+            .then(data => {
+                if (data._embedded && data._embedded.items) {
+                    const items = data._embedded.items;
+                    // Фильтруем и сортируем mp3-файлы
+                    const mp3Files = items
+                        .filter(item => item.name.endsWith('.mp3'))
+                        .sort((a, b) => a.name.localeCompare(b.name));
+
+                    // Создаем плейлист из прямых ссылок
+                    mp3Files.forEach((fileMetadata, index) => {
+                        pleylistF.push(fileMetadata.file); // Прямая ссылка для воспроизведения
+
+                        // Генерируем HTML для трека в плейлисте
+                        let displayName = fileMetadata.name.replace('.mp3', '');
+                        container = '<div class="pleylist_3" id="' + index + '" onclick="document.getElementById(tec).setAttribute(`style`, `background-color: rgb(70, 70, 70)`); tec2(' + index + '); myAudio.pause(); myAudio = new Audio(`' + pleylistF[index] + '`); myAudio.play(); document.getElementById(`pl`).setAttribute(`src`, `img/пауза.png`); document.getElementById(`' + index + '`).setAttribute(`style`, `background-color: rgb(100, 100, 100)`); saveProgress();"><p class="pleylist_2">' + displayName + ' ' + Name_Russian + '</p></div>';
+                        document.getElementById('pleylist').innerHTML += container;
+                    });
+
+                    // Запускаем плеер после загрузки плейлиста
+                    const restored = restoreProgress();
+                    if (!restored) {
+                        tec = 0;
+                        myAudio = new Audio(pleylistF[0]);
+                        document.getElementById('0').setAttribute('style', 'background-color: rgb(100, 100, 100)');
+                    }
+                } else {
+                    console.error('Не удалось получить список файлов с Яндекс.Диска');
+                }
+            })
+            .catch(error => {
+                console.error('Ошибка при запросе к API Яндекс.Диска:', error);
+            });
+
+    } else {
+        // --- Обычный режим (без Яндекс.Диска) ---
+        const basePath = Name_papka;
+
+        while (a < KolVo_files - 1) {
+            a += 1;
+            c = a;
+            if (a < 10) {
+                c = '0' + a;
+            }
+            pleylistF.push(basePath + c + '.mp3');
+            container = '<div class="pleylist_3" id="' + a + '" onclick="... твой текущий onclick ..."><p class="pleylist_2">' + c + ' ' + Name_Russian + '</p></div>';
+            document.getElementById('pleylist').innerHTML += container;
         }
-        pleylistF.push(Name_papka + c + '.mp3')
-        container = '<div class="pleylist_3" id="' + a + '" onclick="document.getElementById(tec).setAttribute(`style`, `background-color: rgb(70, 70, 70)`); tec2(' + a + '); myAudio.pause(); myAudio = new Audio(`' + pleylistF[a] + '`); myAudio.play(); document.getElementById(`pl`).setAttribute(`src`, `img/пауза.png`); document.getElementById(`' + a + '`).setAttribute(`style`, `background-color: rgb(100, 100, 100)`); saveProgress();"><p class="pleylist_2">' + c + ' ' + Name_Russian + '</p></div>'
-        document.getElementById('pleylist').innerHTML += container
-    }
 
-    // Пытаемся восстановить прогресс после генерации плейлиста
-    restoreProgress()
-    const restored = restoreProgress()
-if (!restored) {
-    tec = 0
-    myAudio = new Audio(pleylistF[0])
-    document.getElementById('0').setAttribute('style', 'background-color: rgb(100, 100, 100)')
-}
+        const restored = restoreProgress();
+        if (!restored) {
+            tec = 0;
+            myAudio = new Audio(pleylistF[0]);
+            document.getElementById('0').setAttribute('style', 'background-color: rgb(100, 100, 100)');
+        }
+    }
 }
 
 // ==================== ПРОГРЕСС-БАР (МЫШЬ + TOUCH) ====================
