@@ -320,6 +320,32 @@ function restoreProgress() {
     }
 }
 
+// ==================== ПЕРЕКЛЮЧЕНИЕ ТЕМЫ ====================
+function toggleTheme() {
+    const html = document.documentElement
+    const current = html.getAttribute('data-theme')
+    const next = current === 'dark' ? 'light' : 'dark'
+    html.setAttribute('data-theme', next)
+    localStorage.setItem('theme', next)
+    updateThemeIcon(next)
+}
+
+function updateThemeIcon(theme) {
+    const btn = document.querySelector('.theme-toggle')
+    if (btn) {
+        btn.textContent = theme === 'dark' ? '☀️' : '🌙'
+    }
+}
+
+// Восстановление темы при загрузке
+(function() {
+    const saved = localStorage.getItem('theme') || 'light'
+    document.documentElement.setAttribute('data-theme', saved)
+    document.addEventListener('DOMContentLoaded', function() {
+        updateThemeIcon(saved)
+    })
+})()
+
 // ==================== АВТОСОХРАНЕНИЕ И ЗАКРЫТИЕ ====================
 // Сохраняем прогресс каждые 5 секунд во время воспроизведения
 saveInterval = setInterval(function() {
