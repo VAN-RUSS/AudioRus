@@ -8,9 +8,9 @@ let container
 let pleylistF = []
 let a = -1
 let pr = 0
-let progressInterval = null  // для очистки setInterval
-let saveInterval = null      // интервал автосохранения
-let isRestoring = false      // флаг: идёт восстановление прогресса
+let progressInterval = null
+let saveInterval = null
+let isRestoring = false
 
 // ==================== УТИЛИТЫ ====================
 function tec2(a) {
@@ -23,35 +23,47 @@ function xep(Name_papka, Name_Russian, KolVo_files, diskKey) {
     pleylistF = [];
     document.getElementById('pleylist').innerHTML = '';
 
-    // Проверяем, работаем ли мы с Яндекс.Диском
     const isYandexDisk = diskKey && diskKey.length > 0;
 
     if (isYandexDisk) {
         // --- Режим Яндекс.Диска ---
-        // Загружаем информацию о файлах через API
-        const apiUrl = `https://cloud-api.yandex.net/v1/disk/public/resources?public_key=${diskKey}&limit=1000`;
+        let publicKey = diskKey;
+        if (publicKey.startsWith('http://')) {
+            publicKey = publicKey.replace('http://', 'https://');
+        }
+
+        const apiUrl = `https://cloud-api.yandex.net/v1/disk/public/resources?public_key=${encodeURIComponent(publicKey)}&limit=1000`;
 
         fetch(apiUrl)
             .then(response => response.json())
             .then(data => {
                 if (data._embedded && data._embedded.items) {
                     const items = data._embedded.items;
-                    // Фильтруем и сортируем mp3-файлы
                     const mp3Files = items
                         .filter(item => item.name.endsWith('.mp3'))
                         .sort((a, b) => a.name.localeCompare(b.name));
 
-                    // Создаем плейлист из прямых ссылок
-                    mp3Files.forEach((fileMetadata, index) => {
-                        pleylistF.push(fileMetadata.file); // Прямая ссылка для воспроизведения
+                    if (mp3Files.length === 0) {
+                        console.error('MP3 файлы не найдены');
+                        document.getElementById('pleylist').innerHTML = '<div style="padding: 20px; text-align: center; color: var(--player-text);">MP3 файлы не найдены</div>';
+                        return;
+                    }
 
-                        // Генерируем HTML для трека в плейлисте
+                    // Создаем плейлист с прямыми ссылками (SW их проксирует)
+                    mp3Files.forEach((fileMetadata, index) => {
+                        // Используем прямые ссылки без прокси — Service Worker обработает
+                        pleylistF.push(fileMetadata.file);
+
                         let displayName = fileMetadata.name.replace('.mp3', '');
+                        if (displayName.includes('?')) {
+                            displayName = displayName.split('?')[0];
+                        }
+
                         container = '<div class="pleylist_3" id="' + index + '" onclick="document.getElementById(tec).setAttribute(`style`, `background-color: rgb(70, 70, 70)`); tec2(' + index + '); myAudio.pause(); myAudio = new Audio(`' + pleylistF[index] + '`); myAudio.play(); document.getElementById(`pl`).setAttribute(`src`, `img/пауза.png`); document.getElementById(`' + index + '`).setAttribute(`style`, `background-color: rgb(100, 100, 100)`); saveProgress(); update();"><p class="pleylist_2">' + displayName + ' ' + Name_Russian + '</p></div>';
                         document.getElementById('pleylist').innerHTML += container;
                     });
 
-                    // Запускаем плеер после загрузки плейлиста
+                    // Запускаем плеер
                     const restored = restoreProgress();
                     if (!restored) {
                         tec = 0;
@@ -60,15 +72,17 @@ function xep(Name_papka, Name_Russian, KolVo_files, diskKey) {
                     }
                     update();
                 } else {
-                    console.error('Не удалось получить список файлов с Яндекс.Диска');
+                    console.error('Неверный формат ответа от API');
+                    document.getElementById('pleylist').innerHTML = '<div style="padding: 20px; text-align: center; color: var(--player-text);">Ошибка загрузки плейлиста</div>';
                 }
             })
             .catch(error => {
                 console.error('Ошибка при запросе к API Яндекс.Диска:', error);
+                document.getElementById('pleylist').innerHTML = '<div style="padding: 20px; text-align: center; color: var(--player-text);">Не удалось загрузить плейлист. Проверьте интернет.</div>';
             });
 
     } else {
-        // --- Обычный режим (без Яндекс.Диска) ---
+        // --- Локальный режим ---
         const basePath = Name_papka;
 
         while (a < KolVo_files - 1) {
@@ -98,9 +112,9 @@ function seekHandler(event) {
     let clientX
 
     if (event.touches) {
-        clientX = event.touches[0].clientX  // touch-событие
+        clientX = event.touches[0].clientX
     } else {
-        clientX = event.clientX  // mouse-событие
+        clientX = event.clientX
     }
 
     const line = document.getElementsByClassName('line')[0]
@@ -108,7 +122,6 @@ function seekHandler(event) {
     const offsetX = clientX - rect.left
     let a = offsetX / line.offsetWidth
 
-    // Защита от выхода за границы
     if (a < 0) a = 0
     if (a > 1) a = 1
 
@@ -118,15 +131,12 @@ function seekHandler(event) {
     }
 }
 
-// Мышь
 document.getElementsByClassName('line')[0].onmousedown = seekHandler
 
-// Touch (для телефонов)
 document.getElementsByClassName('line')[0].ontouchstart = function(event) {
     event.preventDefault()
     seekHandler(event)
 
-    // Отслеживаем перемещение пальца
     const onTouchMove = function(e) {
         e.preventDefault()
         seekHandler(e)
@@ -141,7 +151,7 @@ document.getElementsByClassName('line')[0].ontouchstart = function(event) {
 
 // ==================== НАВИГАЦИЯ ПО ТРЕКАМ ====================
 function pred() {
-    if (tec <= 0) return  // защита от выхода за границы
+    if (tec <= 0) return
     myAudio.pause()
     myAudio = new Audio(pleylistF[tec - 1])
     document.getElementById(tec - 1).setAttribute(`style`, `background-color: rgb(100, 100, 100)`)
@@ -154,7 +164,7 @@ function pred() {
 }
 
 function sled() {
-    if (tec >= pleylistF.length - 1) return  // защита от выхода за границы
+    if (tec >= pleylistF.length - 1) return
     myAudio.pause()
     myAudio = new Audio(pleylistF[tec + 1])
     document.getElementById(tec).setAttribute(`style`, `background-color: rgb(70, 70, 70)`)
@@ -168,13 +178,11 @@ function sled() {
 
 // ==================== ОБНОВЛЕНИЕ ТАЙМЕРА И ПОЛОСЫ ====================
 function update() {
-    // Очищаем предыдущий интервал, если был
     if (progressInterval) {
         clearInterval(progressInterval)
     }
 
     progressInterval = setInterval(function() {
-        // Защита: если аудио ещё не загрузилось
         if (!myAudio || !myAudio.duration || isNaN(myAudio.duration)) return
 
         let maxSec = Math.floor(myAudio.duration)
@@ -194,11 +202,9 @@ function update() {
 
         document.getElementById('p').textContent = min + ':' + sec2 + '/' + maxTime
 
-        // Прогресс-бар
         let progressPercent = (myAudio.currentTime / maxSec) * 100
         document.getElementById('l').style.width = progressPercent + '%'
 
-        // Автопереход на следующий трек
         if (myAudio.ended && pleylistF.length > 0 && tec < pleylistF.length - 1) {
             myAudio.pause()
             document.getElementById(tec).setAttribute(`style`, `background-color: rgb(70, 70, 70)`)
@@ -219,7 +225,7 @@ function clicker() {
     if (a.getAttribute('src') === 'img/пауза.png') {
         a.setAttribute('src', 'img/плей.png')
         myAudio.pause()
-        saveProgress()  // сохраняем при паузе
+        saveProgress()
     } else if (a.getAttribute('src') === 'img/плей.png') {
         a.setAttribute('src', 'img/пауза.png')
         myAudio.play()
@@ -227,12 +233,10 @@ function clicker() {
 }
 
 // ==================== КЭШ-СОХРАНЕНИЕ ПРОГРЕССА ====================
-// Формируем уникальный ключ на основе URL страницы (без .html)
 function getCacheKey() {
     const params = new URLSearchParams(window.location.search)
     const bookId = params.get('book')
     if (bookId) return 'audioProgress_' + bookId
-    // fallback для главной и старых страниц
     const path = window.location.pathname.split('/').pop().replace('.html', '')
     return 'audioProgress_' + path
 }
@@ -242,7 +246,7 @@ const CACHE_EXPIRY_DAYS = 30
 
 function saveProgress() {
     if (!myAudio || !myAudio.duration || isNaN(myAudio.duration) || myAudio.duration === 0) return
-    if (isRestoring) return  // не сохраняем во время восстановления
+    if (isRestoring) return
 
     const data = {
         track: tec,
@@ -253,7 +257,6 @@ function saveProgress() {
     try {
         localStorage.setItem(CACHE_KEY, JSON.stringify(data))
     } catch (e) {
-        // localStorage переполнен или недоступен — игнорируем
         console.warn('Не удалось сохранить прогресс:', e)
     }
 }
@@ -265,7 +268,6 @@ function loadProgress() {
 
         const saved = JSON.parse(raw)
 
-        // Проверка: не устарела ли запись
         if (Date.now() - saved.timestamp > CACHE_EXPIRY_DAYS * 24 * 3600 * 1000) {
             localStorage.removeItem(CACHE_KEY)
             return null
@@ -286,7 +288,6 @@ function restoreProgress() {
 
     tec = saved.track
 
-    // Подсвечиваем сохранённый трек в плейлисте
     for (let i = 0; i < pleylistF.length; i++) {
         const el = document.getElementById(i)
         if (el) {
@@ -298,14 +299,11 @@ function restoreProgress() {
         activeEl.setAttribute('style', 'background-color: rgb(100, 100, 100)')
     }
 
-    // Создаём аудио с сохранённого трека
     myAudio = new Audio(pleylistF[tec])
     myAudio.currentTime = saved.time
 
-    // Меняем иконку на паузу (готовность к воспроизведению)
     document.getElementById('pl').setAttribute('src', 'img/плей.png')
 
-    // Ждём, пока аудио загрузится, затем устанавливаем время
     myAudio.addEventListener('loadedmetadata', function() {
         if (saved.time < myAudio.duration) {
             myAudio.currentTime = saved.time
@@ -313,7 +311,6 @@ function restoreProgress() {
         isRestoring = false
     }, { once: true })
 
-    // Fallback: если метаданные уже загружены
     if (myAudio.readyState >= 1) {
         if (saved.time < myAudio.duration) {
             myAudio.currentTime = saved.time
@@ -324,23 +321,32 @@ function restoreProgress() {
     return true
 }
 
+// ==================== РЕГИСТРАЦИЯ SERVICE WORKER ====================
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function() {
+        navigator.serviceWorker.register('/Sorokin_Ivan_the_end_project/sw.js')
+            .then(function(registration) {
+                console.log('Service Worker зарегистрирован:', registration.scope);
+            })
+            .catch(function(error) {
+                console.log('Ошибка регистрации Service Worker:', error);
+            });
+    });
+}
+
 // ==================== АВТОСОХРАНЕНИЕ И ЗАКРЫТИЕ ====================
-// Сохраняем прогресс каждые 5 секунд во время воспроизведения
 saveInterval = setInterval(function() {
     if (myAudio && !myAudio.paused && myAudio.duration && !isNaN(myAudio.duration)) {
         saveProgress()
     }
 }, 5000)
 
-// Сохраняем при уходе со страницы
 window.addEventListener('beforeunload', function() {
     saveProgress()
-    // Очищаем интервалы
     if (progressInterval) clearInterval(progressInterval)
     if (saveInterval) clearInterval(saveInterval)
 })
 
-// Сохраняем при сворачивании вкладки (мобильные)
 document.addEventListener('visibilitychange', function() {
     if (document.hidden) {
         saveProgress()
