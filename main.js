@@ -9,6 +9,9 @@ let progressInterval = null
 let saveInterval = null
 let isRestoring = false
 
+// !!! ЗАМЕНИТЕ НА HTTPS ПОСЛЕ НАСТРОЙКИ SSL !!!
+const PROXY_URL = 'http://awesomwo.beget.tech/proxy.php'
+
 // ==================== УТИЛИТЫ ====================
 function tec2(a) {
     tec = a
@@ -24,28 +27,23 @@ function xep(folder, nameRussian, filesCount, diskKey) {
     Name_Russian = nameRussian
     KolVo_files = filesCount
 
-    // Получаем данные книги
     const params = new URLSearchParams(window.location.search)
     const bookId = params.get('book')
     const book = bookId ? BOOKS_DATA[bookId] : null
 
-    // Определяем источник аудио
     const hasDirectLinks = book && book.directLinks && book.directLinks.length > 0
     const hasDiskKey = diskKey && diskKey.length > 0
 
     if (hasDirectLinks) {
-        // ========== РЕЖИМ: ПРЯМЫЕ ССЫЛКИ (ОСНОВНОЙ) ==========
-        console.log('Загрузка через прямые ссылки')
+        // ========== ПРЯМЫЕ ССЫЛКИ ЧЕРЕЗ PHP-ПРОКСИ ==========
+        console.log('Загрузка через PHP-прокси (прямые ссылки)')
 
         book.directLinks.forEach((link, index) => {
-            pleylistF.push(link)
+            const proxiedUrl = PROXY_URL + '?url=' + encodeURIComponent(link)
+            pleylistF.push(proxiedUrl)
 
-            // Получаем имя файла из ссылки для отображения
-            let fileName = link.split('/').pop()  // берём последнюю часть URL
-            if (fileName.includes('?')) {
-                fileName = fileName.split('?')[0]  // убираем параметры
-            }
-            let displayName = fileName.replace('.mp3', '')
+            const trackNum = index + 1
+            const displayName = trackNum < 10 ? '0' + trackNum : '' + trackNum
 
             const trackHTML = `
                 <div class="pleylist_3" id="${index}"
@@ -55,30 +53,29 @@ function xep(folder, nameRussian, filesCount, diskKey) {
             document.getElementById('pleylist').innerHTML += trackHTML
         })
 
-        // Восстанавливаем прогресс или начинаем с первого трека
         const restored = restoreProgress()
-        if (!restored) {
+        if (!restored && pleylistF.length > 0) {
             tec = 0
-            if (pleylistF.length > 0) {
-                myAudio = new Audio(pleylistF[0])
-                highlightTrack(0)
-            }
+            myAudio = new Audio(pleylistF[0])
+            highlightTrack(0)
         }
         update()
 
     } else if (hasDiskKey) {
-        // ========== ЗАПАСНОЙ РЕЖИМ: API ЯНДЕКС.ДИСКА ==========
-        console.log('Загрузка через API Яндекс.Диска')
+        // ========== API ЯНДЕКС.ДИСКА ЧЕРЕЗ PHP-ПРОКСИ ==========
+        console.log('Загрузка через PHP-прокси (API Яндекс.Диска)')
 
+        // Исправляем HTTP на HTTPS
         if (diskKey.startsWith('http://')) {
             diskKey = diskKey.replace('http://', 'https://')
         }
 
-        const apiUrl = `https://cloud-api.yandex.net/v1/disk/public/resources?public_key=${encodeURIComponent(diskKey)}&limit=1000`
+        const yandexApiUrl = `https://cloud-api.yandex.net/v1/disk/public/resources?public_key=${encodeURIComponent(diskKey)}&limit=1000`
+        const proxiedApiUrl = PROXY_URL + '?url=' + encodeURIComponent(yandexApiUrl)
 
         document.getElementById('pleylist').innerHTML = '<div style="padding:20px;text-align:center;color:var(--player-text)">Загрузка плейлиста...</div>'
 
-        fetch(apiUrl)
+        fetch(proxiedApiUrl)
             .then(response => response.json())
             .then(data => {
                 document.getElementById('pleylist').innerHTML = ''
@@ -88,8 +85,15 @@ function xep(folder, nameRussian, filesCount, diskKey) {
                         .filter(item => item.name.toLowerCase().endsWith('.mp3'))
                         .sort((a, b) => a.name.localeCompare(b.name))
 
+                    if (mp3Files.length === 0) {
+                        document.getElementById('pleylist').innerHTML = '<div style="padding:20px;text-align:center;color:var(--player-text)">MP3 файлы не найдены</div>'
+                        return
+                    }
+
                     mp3Files.forEach((file, index) => {
-                        pleylistF.push(file.file)
+                        // Проксируем прямую ссылку на MP3
+                        const proxiedMp3Url = PROXY_URL + '?url=' + encodeURIComponent(file.file)
+                        pleylistF.push(proxiedMp3Url)
 
                         let displayName = file.name.replace('.mp3', '')
 
@@ -109,16 +113,16 @@ function xep(folder, nameRussian, filesCount, diskKey) {
                     }
                     update()
                 } else {
-                    document.getElementById('pleylist').innerHTML = '<div style="padding:20px;text-align:center;color:var(--player-text)">Плейлист пуст</div>'
+                    document.getElementById('pleylist').innerHTML = '<div style="padding:20px;text-align:center;color:var(--player-text)">Неверный ответ от API</div>'
                 }
             })
             .catch(error => {
-                console.error('Ошибка API Яндекс.Диска:', error)
-                document.getElementById('pleylist').innerHTML = '<div style="padding:20px;text-align:center;color:var(--player-text)">Ошибка загрузки</div>'
+                console.error('Ошибка загрузки:', error)
+                document.getElementById('pleylist').innerHTML = '<div style="padding:20px;text-align:center;color:var(--player-text)">Ошибка загрузки плейлиста</div>'
             })
 
     } else {
-        // ========== РЕЖИМ: ЛОКАЛЬНЫЕ ФАЙЛЫ ==========
+        // ========== ЛОКАЛЬНЫЕ ФАЙЛЫ ==========
         console.log('Загрузка локальных файлов')
 
         for (let i = 0; i < filesCount; i++) {
@@ -143,7 +147,6 @@ function xep(folder, nameRussian, filesCount, diskKey) {
     }
 }
 
-// Подсветка активного трека
 function highlightTrack(index) {
     for (let i = 0; i < pleylistF.length; i++) {
         const el = document.getElementById(i)
@@ -153,7 +156,6 @@ function highlightTrack(index) {
     if (active) active.setAttribute('style', 'background-color: rgb(100, 100, 100)')
 }
 
-// Воспроизведение трека по клику
 function playTrack(index) {
     if (index < 0 || index >= pleylistF.length) return
 
@@ -235,7 +237,6 @@ function update() {
     progressInterval = setInterval(function() {
         if (!myAudio || !myAudio.duration || isNaN(myAudio.duration)) return
 
-        // Таймер
         const maxSec = Math.floor(myAudio.duration)
         const maxMin = Math.floor(maxSec / 60)
         let maxSec2 = maxSec - (maxMin * 60)
@@ -249,11 +250,9 @@ function update() {
 
         document.getElementById('p').textContent = min + ':' + sec2 + '/' + maxTime
 
-        // Прогресс-бар
         const percent = (myAudio.currentTime / maxSec) * 100
         document.getElementById('l').style.width = percent + '%'
 
-        // Автопереход
         if (myAudio.ended && tec < pleylistF.length - 1) {
             playTrack(tec + 1)
         }
