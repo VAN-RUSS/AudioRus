@@ -9,8 +9,13 @@ let progressInterval = null
 let saveInterval = null
 let isRestoring = false
 
-// !!! ЗАМЕНИТЕ НА HTTPS ПОСЛЕ НАСТРОЙКИ SSL !!!
-const PROXY_URL = 'http://awesomwo.beget.tech/proxy.php'
+// ==================== YANDEX OBJECT STORAGE ====================
+const STORAGE_URL = 'https://storage.yandexcloud.net/audiorus-books'
+
+function getTrackUrl(folder, index) {
+    const num = index < 10 ? '0' + index : '' + index
+    return `${STORAGE_URL}/${folder}${num}.mp3`
+}
 
 // ==================== УТИЛИТЫ ====================
 function tec2(a) {
@@ -27,124 +32,30 @@ function xep(folder, nameRussian, filesCount, diskKey) {
     Name_Russian = nameRussian
     KolVo_files = filesCount
 
-    const params = new URLSearchParams(window.location.search)
-    const bookId = params.get('book')
-    const book = bookId ? BOOKS_DATA[bookId] : null
+    // Всегда загружаем из Object Storage
+    console.log('Загрузка из Yandex Object Storage: ' + folder)
 
-    const hasDirectLinks = book && book.directLinks && book.directLinks.length > 0
-    const hasDiskKey = diskKey && diskKey.length > 0
+    for (let i = 0; i < filesCount; i++) {
+        const url = getTrackUrl(folder, i)
+        pleylistF.push(url)
 
-    if (hasDirectLinks) {
-        // ========== ПРЯМЫЕ ССЫЛКИ ЧЕРЕЗ PHP-ПРОКСИ ==========
-        console.log('Загрузка через PHP-прокси (прямые ссылки)')
+        let num = i < 10 ? '0' + i : '' + i
 
-        book.directLinks.forEach((link, index) => {
-            const proxiedUrl = PROXY_URL + '?url=' + encodeURIComponent(link)
-            pleylistF.push(proxiedUrl)
-
-            const trackNum = index + 1
-            const displayName = trackNum < 10 ? '0' + trackNum : '' + trackNum
-
-            const trackHTML = `
-                <div class="pleylist_3" id="${index}"
-                     onclick="playTrack(${index})">
-                    <p class="pleylist_2">${displayName} ${Name_Russian}</p>
-                </div>`
-            document.getElementById('pleylist').innerHTML += trackHTML
-        })
-
-        const restored = restoreProgress()
-        if (!restored && pleylistF.length > 0) {
-            tec = 0
-            myAudio = new Audio(pleylistF[0])
-            highlightTrack(0)
-        }
-        update()
-
-    } else if (hasDiskKey) {
-        // ========== API ЯНДЕКС.ДИСКА ЧЕРЕЗ PHP-ПРОКСИ ==========
-        console.log('Загрузка через PHP-прокси (API Яндекс.Диска)')
-
-        // Исправляем HTTP на HTTPS
-        if (diskKey.startsWith('http://')) {
-            diskKey = diskKey.replace('http://', 'https://')
-        }
-
-        const yandexApiUrl = `https://cloud-api.yandex.net/v1/disk/public/resources?public_key=${encodeURIComponent(diskKey)}&limit=1000`
-        const proxiedApiUrl = PROXY_URL + '?url=' + encodeURIComponent(yandexApiUrl)
-
-        document.getElementById('pleylist').innerHTML = '<div style="padding:20px;text-align:center;color:var(--player-text)">Загрузка плейлиста...</div>'
-
-        fetch(proxiedApiUrl)
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById('pleylist').innerHTML = ''
-
-                if (data._embedded && data._embedded.items) {
-                    const mp3Files = data._embedded.items
-                        .filter(item => item.name.toLowerCase().endsWith('.mp3'))
-                        .sort((a, b) => a.name.localeCompare(b.name))
-
-                    if (mp3Files.length === 0) {
-                        document.getElementById('pleylist').innerHTML = '<div style="padding:20px;text-align:center;color:var(--player-text)">MP3 файлы не найдены</div>'
-                        return
-                    }
-
-                    mp3Files.forEach((file, index) => {
-                        // Проксируем прямую ссылку на MP3
-                        const proxiedMp3Url = PROXY_URL + '?url=' + encodeURIComponent(file.file)
-                        pleylistF.push(proxiedMp3Url)
-
-                        let displayName = file.name.replace('.mp3', '')
-
-                        const trackHTML = `
-                            <div class="pleylist_3" id="${index}"
-                                 onclick="playTrack(${index})">
-                                <p class="pleylist_2">${displayName} ${Name_Russian}</p>
-                            </div>`
-                        document.getElementById('pleylist').innerHTML += trackHTML
-                    })
-
-                    const restored = restoreProgress()
-                    if (!restored && pleylistF.length > 0) {
-                        tec = 0
-                        myAudio = new Audio(pleylistF[0])
-                        highlightTrack(0)
-                    }
-                    update()
-                } else {
-                    document.getElementById('pleylist').innerHTML = '<div style="padding:20px;text-align:center;color:var(--player-text)">Неверный ответ от API</div>'
-                }
-            })
-            .catch(error => {
-                console.error('Ошибка загрузки:', error)
-                document.getElementById('pleylist').innerHTML = '<div style="padding:20px;text-align:center;color:var(--player-text)">Ошибка загрузки плейлиста</div>'
-            })
-
-    } else {
-        // ========== ЛОКАЛЬНЫЕ ФАЙЛЫ ==========
-        console.log('Загрузка локальных файлов')
-
-        for (let i = 0; i < filesCount; i++) {
-            let num = i < 10 ? '0' + i : '' + i
-            pleylistF.push(folder + num + '.mp3')
-
-            const trackHTML = `
-                <div class="pleylist_3" id="${i}"
-                     onclick="playTrack(${i})">
-                    <p class="pleylist_2">${num} ${Name_Russian}</p>
-                </div>`
-            document.getElementById('pleylist').innerHTML += trackHTML
-        }
-
-        const restored = restoreProgress()
-        if (!restored && pleylistF.length > 0) {
-            tec = 0
-            myAudio = new Audio(pleylistF[0])
-            highlightTrack(0)
-        }
-        update()
+        const trackHTML = `
+            <div class="pleylist_3" id="${i}"
+                 onclick="playTrack(${i})">
+                <p class="pleylist_2">${num} ${Name_Russian}</p>
+            </div>`
+        document.getElementById('pleylist').innerHTML += trackHTML
     }
+
+    const restored = restoreProgress()
+    if (!restored && pleylistF.length > 0) {
+        tec = 0
+        myAudio = new Audio(pleylistF[0])
+        highlightTrack(0)
+    }
+    update()
 }
 
 function highlightTrack(index) {
