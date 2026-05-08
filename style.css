@@ -134,13 +134,33 @@ header {
     box-shadow: var(--shadow-sm);
     transition: background-color 0.3s ease;
 }
+.ikon {
+    height: 60px;
+    max-width: 100%; /* никогда не будет шире родителя */
+    width: auto;     /* сохраняет пропорции */
+    object-fit: contain;
+}
 
+/* Адаптивность для мобильных */
+
+@media (max-width: 600px) {
+    .ikon {
+        height: 50px;
+    }
+}
+
+@media (max-width: 400px) {
+    .ikon {
+        height: 40px;
+    }
+}
 .hed_1 {
     width: 92%;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 12px;
+    gap: 10px;       /* чтобы логотип и кнопка не прилипали вплотную */
+    flex-wrap: nowrap; /* не даёт переноситься на новую строку */
 }
 
 .hed_2_box {
