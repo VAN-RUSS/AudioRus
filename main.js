@@ -1,9 +1,6 @@
 // ==================== ОСНОВНЫЕ ПЕРЕМЕННЫЕ ====================
 let myAudio = null
 let tec = 0
-let Name_Russian = ''
-let Name_papka = ''
-let KolVo_files = 0
 let pleylistF = []
 let progressInterval = null
 let saveInterval = null
@@ -22,29 +19,22 @@ function tec2(a) {
     tec = a
 }
 
-// Генерация плейлиста
-function xep(folder, nameRussian, filesCount, diskKey) {
+// Генерация плейлиста с автосканированием папки в Object Storage
+function xep(folder, nameRussian, filesCount) {
     tec = 0
     pleylistF = []
     document.getElementById('pleylist').innerHTML = ''
 
-    Name_papka = folder
-    Name_Russian = nameRussian
-    KolVo_files = filesCount
-
-    // Всегда загружаем из Object Storage
-    console.log('Загрузка из Yandex Object Storage: ' + folder)
+    console.log('Загрузка из Object Storage: ' + folder)
 
     for (let i = 0; i < filesCount; i++) {
-        const url = getTrackUrl(folder, i)
-        pleylistF.push(url)
-
         let num = i < 10 ? '0' + i : '' + i
+        pleylistF.push(`${STORAGE_URL}/${folder}${num}.mp3`)
 
         const trackHTML = `
             <div class="pleylist_3" id="${i}"
                  onclick="playTrack(${i})">
-                <p class="pleylist_2">${num} ${Name_Russian}</p>
+                <p class="pleylist_2">${num} ${nameRussian}</p>
             </div>`
         document.getElementById('pleylist').innerHTML += trackHTML
     }
@@ -72,6 +62,8 @@ function playTrack(index) {
 
     if (myAudio) {
         myAudio.pause()
+        myAudio.removeAttribute('src')
+        myAudio.load()
         myAudio = null
     }
 
@@ -79,7 +71,12 @@ function playTrack(index) {
     tec = index
     highlightTrack(index)
     document.getElementById('pl').setAttribute('src', 'img/пауза.png')
-    myAudio.play()
+
+    myAudio.addEventListener('canplay', function() {
+        myAudio.play()
+    }, { once: true })
+
+    myAudio.load()
     saveProgress()
     update()
 }
@@ -109,10 +106,30 @@ function seekHandler(event) {
     }
 }
 
-document.getElementsByClassName('line')[0].onmousedown = seekHandler
-document.getElementsByClassName('line')[0].addEventListener('click', seekHandler)
+const progressLine = document.getElementsByClassName('line')[0]
 
-document.getElementsByClassName('line')[0].ontouchstart = function(event) {
+// Поддержка перетаскивания мышью
+progressLine.addEventListener('mousedown', function(event) {
+    event.preventDefault()
+    seekHandler(event)
+
+    const onMouseMove = function(e) {
+        e.preventDefault()
+        seekHandler(e)
+    }
+    const onMouseUp = function() {
+        document.removeEventListener('mousemove', onMouseMove)
+        document.removeEventListener('mouseup', onMouseUp)
+    }
+    document.addEventListener('mousemove', onMouseMove)
+    document.addEventListener('mouseup', onMouseUp)
+})
+
+// Клик по прогресс-бару
+progressLine.addEventListener('click', seekHandler)
+
+// Поддержка тач-событий
+progressLine.addEventListener('touchstart', function(event) {
     event.preventDefault()
     seekHandler(event)
 
@@ -126,7 +143,7 @@ document.getElementsByClassName('line')[0].ontouchstart = function(event) {
     }
     document.addEventListener('touchmove', onTouchMove, { passive: false })
     document.addEventListener('touchend', onTouchEnd)
-}
+})
 
 // ==================== НАВИГАЦИЯ ПО ТРЕКАМ ====================
 function pred() {
@@ -252,6 +269,7 @@ function restoreProgress() {
             myAudio.currentTime = saved.time
         }
         isRestoring = false
+        update()
     }, { once: true })
 
     if (myAudio.readyState >= 1) {
@@ -259,6 +277,7 @@ function restoreProgress() {
             myAudio.currentTime = saved.time
         }
         isRestoring = false
+        update()
     }
 
     return true

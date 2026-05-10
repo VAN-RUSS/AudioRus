@@ -755,3 +755,192 @@ footer {
         gap: 32px;
     }
 }
+/* ====================  ¿–“Œ◊ » ÷» ÀŒ¬ (√À¿¬Õ¿ﬂ) ==================== */
+.cycles-container {
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+    margin-top: 20px;
+}
+
+.cycle-card-link {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+}
+
+.cycle-card {
+    background-color: var(--surface);
+    border: 2px solid var(--border);
+    border-radius: var(--radius);
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+    min-height: 320px;
+    width: 100%;
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+    transition: box-shadow var(--transition), transform var(--transition);
+}
+
+.cycle-card:hover {
+    box-shadow: var(--shadow-hover);
+    transform: translateY(-3px);
+}
+
+.cycle-cover {
+    width: 280px;
+    height: 100%;
+    object-fit: cover;
+    flex-shrink: 0;
+    border-right: 2px solid var(--border);
+}
+
+.cycle-info {
+    padding: 24px 24px 24px 24px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    overflow: hidden;
+}
+
+.cycle-label {
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--text-secondary);
+    margin: 0;
+}
+
+.cycle-name {
+    margin: 0;
+    font-size: 28px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: -0.5px;
+    line-height: 1.2;
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+}
+
+.cycle-author {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text);
+}
+
+.cycle-genre {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-secondary);
+}
+
+.cycle-count {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--accent);
+}
+
+.cycle-narrator {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-secondary);
+}
+
+.cycle-annotation {
+    margin: 8px 0 0;
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--text-secondary);
+    font-family: 'Merriweather', Georgia, serif;
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* ==================== ¿ƒ¿œ“»¬ÕŒ—“‹ ƒÀﬂ ÷» ÀŒ¬ ==================== */
+@media (max-width: 600px) {
+    .cycle-card {
+        flex-direction: row;
+        min-height: 230px;
+        height: 230px;
+    }
+    
+    .cycle-cover {
+        width: 170px;
+        height: 100%;
+        object-fit: cover;
+        flex-shrink: 0;
+        border-right: 2px solid var(--border);
+        border-bottom: none;
+    }
+    
+    .cycle-info {
+        padding: 14px 12px 14px 12px;
+        gap: 4px;
+        overflow: hidden;
+    }
+    
+    .cycle-label {
+        font-size: 11px;
+        letter-spacing: 1.5px;
+    }
+    
+    .cycle-name {
+        font-size: 18px;
+        letter-spacing: -0.3px;
+    }
+    
+    .cycle-author {
+        font-size: 14px;
+    }
+    
+    .cycle-genre {
+        font-size: 12px;
+    }
+    
+    .cycle-count {
+        font-size: 13px;
+    }
+    
+    .cycle-narrator {
+        font-size: 12px;
+    }
+    
+    .cycle-annotation {
+        display: none;
+    }
+}
+/* ==================== «¿√ŒÀŒ¬Œ  ÷» À¿ Õ¿ —“–¿Õ»÷≈ ÷» À¿ ==================== */
+.cycle-title-block {
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 2px solid var(--border);
+    text-align: center;
+}
+
+.cycle-title-label {
+    font-size: 14px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--text-secondary);
+    margin: 0 0 4px 0;
+}
+
+.cycle-title-name {
+    font-size: clamp(36px, 6vw, 56px);
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: -1px;
+    line-height: 1.1;
+    color: var(--accent);
+    margin: 0;
+}

@@ -50,18 +50,16 @@ document.addEventListener('DOMContentLoaded', function() {
     `
 
     // Аннотация
-    document.getElementById('book-annotation').innerHTML = `
-        <div class="an_3">
-            <h1 class="an_1">
-                Стеллар ${book.cycle.split('/')[0]}, ${book.title} Аннотация:
-            </h1>
-        </div>
-        <div class="an_3" style="margin-top: -35px;">
-            <p class="an_2">
-                ${book.annotation}
-            </p>
-        </div>
-    `
+   document.getElementById('book-annotation').innerHTML = `
+    <div class="an_3">
+        <h1 class="an_1">
+            Стеллар ${book.cycle.split('/')[0]}, ${book.title} Аннотация:
+        </h1>
+        <p class="an_2">
+            ${book.annotation}
+        </p>
+    </div>
+`
 
     // Навигация: предыдущая / следующая книга цикла
     const cycleNum = parseInt(book.cycle.split('/')[0])

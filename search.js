@@ -1,36 +1,38 @@
-// Поиск по книгам на главной
+// Поиск по циклам книг на главной
 document.addEventListener('DOMContentLoaded', function() {
     const searchInput = document.querySelector('.hed_2_1')
     const searchButton = document.querySelector('.hed_2_2')
-    const books = document.querySelectorAll('.prosto_kniga')
-    const bookLinks = document.querySelectorAll('.prosto_knigi a')
+    const cycleCards = document.querySelectorAll('.cycle-card-link')
 
-    function filterBooks() {
+    function filterCycles() {
         const query = searchInput.value.toLowerCase().trim()
 
-        bookLinks.forEach(function(link) {
-            const book = link.querySelector('.prosto_kniga')
-            const title = book.querySelector('h2').textContent.toLowerCase()
-            const description = book.querySelector('.kniga_p').textContent.toLowerCase()
+        cycleCards.forEach(function(card) {
+            const cycleInfo = card.querySelector('.cycle-info')
+            const name = cycleInfo.querySelector('.cycle-name').textContent.toLowerCase()
+            const author = cycleInfo.querySelector('.cycle-author').textContent.toLowerCase()
+            const genre = cycleInfo.querySelector('.cycle-genre').textContent.toLowerCase()
+            const annotation = cycleInfo.querySelector('.cycle-annotation').textContent.toLowerCase()
+            const combined = name + ' ' + author + ' ' + genre + ' ' + annotation
 
-            if (title.includes(query) || description.includes(query)) {
-                link.style.display = ''
+            if (combined.includes(query)) {
+                card.style.display = ''
             } else {
-                link.style.display = 'none'
+                card.style.display = 'none'
             }
         })
 
         // Показываем сообщение, если ничего не найдено
-        const visibleBooks = document.querySelectorAll('.prosto_knigi a[style=""]').length
+        const visibleCards = document.querySelectorAll('.cycle-card-link[style=""]').length
         const noResults = document.getElementById('no-results')
 
-        if (visibleBooks === 0 && query !== '') {
+        if (visibleCards === 0 && query !== '') {
             if (!noResults) {
                 const msg = document.createElement('div')
                 msg.id = 'no-results'
                 msg.style.cssText = 'text-align: center; font-size: 24px; font-family: Arial; margin: 40px; color: #888;'
                 msg.textContent = 'Ничего не найдено :('
-                document.querySelector('.prosto_knigi').appendChild(msg)
+                document.querySelector('.cycles-container').appendChild(msg)
             }
         } else if (noResults) {
             noResults.remove()
@@ -38,22 +40,20 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Поиск по клику на иконку
-    searchButton.addEventListener('click', filterBooks)
+    searchButton.addEventListener('click', filterCycles)
 
     // Поиск по Enter
     searchInput.addEventListener('keyup', function(event) {
         if (event.key === 'Enter') {
-            filterBooks()
+            filterCycles()
         }
-        // Опционально: живой поиск при вводе (раскомментируй следующую строку)
-        // filterBooks()
     })
 
-    // Очистка поиска — показываем все книги снова
+    // Очистка поиска — показываем все циклы снова
     searchInput.addEventListener('input', function() {
         if (searchInput.value === '') {
-            bookLinks.forEach(function(link) {
-                link.style.display = ''
+            cycleCards.forEach(function(card) {
+                card.style.display = ''
             })
             const noResults = document.getElementById('no-results')
             if (noResults) noResults.remove()
