@@ -1,5 +1,3 @@
-const STORAGE_URL = 'https://storage.yandexcloud.net/audiorus-books'
-const IMG_URL = 'https://storage.yandexcloud.net/audiorus-books/img'
 
 const BOOKS_DATA = {
     "stellar_1": {
