@@ -20,21 +20,26 @@ function tec2(a) {
 }
 
 // Генерация плейлиста с автосканированием папки в Object Storage
-function xep(folder, nameRussian, filesCount) {
+function xep(folder, nameRussian, filesCount, startNumber) {
     tec = 0
     pleylistF = []
     document.getElementById('pleylist').innerHTML = ''
 
-    console.log('Загрузка из Object Storage: ' + folder)
+    // Если startNumber не передан или некорректен, считаем 0
+    if (typeof startNumber === 'undefined') startNumber = 0
+    const offset = startNumber
+
+    console.log('Загрузка из Object Storage: ' + folder + ' (начальный номер: ' + offset + ')')
 
     for (let i = 0; i < filesCount; i++) {
-        let num = i < 10 ? '0' + i : '' + i
+        const fileIndex = offset + i
+        const num = fileIndex < 10 ? '0' + fileIndex : '' + fileIndex
         pleylistF.push(`${STORAGE_URL}/${folder}${num}.mp3`)
 
         const trackHTML = `
             <div class="pleylist_3" id="${i}"
                  onclick="playTrack(${i})">
-                <p class="pleylist_2">${num} ${nameRussian}</p>
+                <p class="pleylist_2">Глава ${i + 1}</p>
             </div>`
         document.getElementById('pleylist').innerHTML += trackHTML
     }

@@ -123,5 +123,5 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // book-loader.js (фрагмент)
 // Запускаем плеер
-xep(book.folder, book.nameRussian, book.filesCount, book.diskKey || null);
+xep(book.folder, book.nameRussian, book.filesCount, book.startNumber || 0);
 })
