@@ -1,4 +1,4 @@
-
+const IMG_URL = 'https://storage.yandexcloud.net/audiorus-books/img'
 const BOOKS_DATA = {
     "stellar_1": {
         title: "Инкарнатор",
