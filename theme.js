@@ -5,6 +5,14 @@
     function setTheme(theme) {
         html.setAttribute('data-theme', theme);
         localStorage.setItem('theme', theme);
+        if (theme === 'dark') {
+        document.body.classList.add('dark-theme');
+        document.querySelector('.ikon').src = 'img/иконка_2_t.png';
+    } else {
+        document.body.classList.remove('dark-theme');
+        document.querySelector('.ikon').src = 'img/иконка_2.png';
+    }
+    localStorage.setItem('theme', theme);
     }
 
     // Определение системной темы
